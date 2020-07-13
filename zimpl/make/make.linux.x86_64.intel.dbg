@@ -1,0 +1,21 @@
+#--- $Id: make.linux.x86_64.intel.dbg,v 1.4 2014/01/12 11:07:04 bzfkocht Exp $
+CC		=	icc
+CPPFLAGS	+=	-DFREEMEM
+CFLAGS		=	-g -fp-model precise -w2 -Wcheck \
+			-par_report0 -vec_report0 \
+			-wd111,171,279,981,1173,1419,1684
+LDFLAGS         =       -lgmp -lm
+
+ifeq ($(ZLIB),true)
+LDFLAGS		+=	-lz
+endif
+
+# -wd383,444,810 
+
+#ifeq ($(LINK),shared)
+#LINK		=	normal
+#endif
+
+#ifeq ($(LINK),static)
+LDFLAGS		+=	-static
+#endif

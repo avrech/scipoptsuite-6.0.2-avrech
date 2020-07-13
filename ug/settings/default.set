@@ -1,0 +1,5 @@
+# Quiet = FALSE                
+# LogSolvingStatusFilePath = "./logs/"
+# LogNodesTransferFilePath = "./logs/"
+# CheckpointFilePath = "./logs/"
+# SolutionFilePath = "./logs/"
