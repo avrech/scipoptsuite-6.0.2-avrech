@@ -101,11 +101,31 @@ SCIP_RETCODE SCIPstatCreate(
    (*stat)->subscipdepth = 0;
    (*stat)->detertimecnt = 0.0;
    (*stat)->nreoptruns = 0;
+//   (*stat)->appliedcutsnames = NULL  /** TODO - avrech not verified */
+//   (*stat)->nappliedcutsnames = 0    /** TODO - avrech not verified */
 
    SCIPstatReset(*stat, set, transprob, origprob);
 
    return SCIP_OKAY;
 }
+
+///** TODO - avrech not verified. frees appliedcutsnames */
+//SCIP_RETCODE SCIPstatFreeAppliedCutsNames(
+//   SCIP_STAT*            stat
+//)
+//{
+//   assert(stat != NULL);
+//   if(stat->appliedcutsnames == NULL)
+//   {
+//      return SCIP_OKAY;
+//   }
+//   /* free all cut names stored */
+//   for( i = 0; i < stat->nappliedcutsnames; ++i )
+//   {
+//
+//   }
+//}
+///** TODO - avrech end */
 
 /** frees problem statistics data */
 SCIP_RETCODE SCIPstatFree(
@@ -143,6 +163,8 @@ SCIP_RETCODE SCIPstatFree(
    SCIPvisualFree(&(*stat)->visual);
 
    SCIPregressionFree(&(*stat)->regressioncandsobjval);
+//   (*stat)->appliedcutsnames = NULL  /** TODO - avrech not verified - free allocated data */
+//   (*stat)->nappliedcutsnames = 0    /** TODO - avrech not verified */
 
    BMSfreeMemory(stat);
 

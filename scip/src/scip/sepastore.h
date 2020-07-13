@@ -39,6 +39,7 @@
 #include "scip/type_reopt.h"
 #include "scip/type_sepastore.h"
 #include "scip/type_branch.h"
+#include "scip/struct_scip.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -167,6 +168,33 @@ int SCIPsepastoreGetNCutsFoundRound(
 /** get total number of cuts applied to the LPs */
 int SCIPsepastoreGetNCutsApplied(
    SCIP_SEPASTORE*       sepastore           /**< separation storage */
+   );
+
+/** TODO avrech - verification */
+/** resort all cuts in the separation storage, and set the proper nforcedcuts counter,
+    such that all the forcedcuts will move to the cuts array beginning,
+    and nforcedcuts will be equal to the number of cuts in forcedcuts.
+    this method should be applied after all separators finished adding cuts.
+    after applying this function,
+    the previous sorting of forced cuts in sepastore will not be valid any more.
+    in order to make sure that only those forced cuts will be selected,
+    one needs to reset separating/maxcuts or separating/maxcutsroot to nforcedcuts
+    */
+SCIP_EXPORT
+SCIP_RETCODE SCIPforceCuts(
+   SCIP*                 scip,               /**< scip data structure */
+   int*                  forcedcuts,         /**< indices of cuts in the separation storage to be forced */
+   int                   nforcedcuts         /**< number of forced cuts in forcedcuts */
+   );
+
+/** TODO avrech - verification */
+/** Returns array with the indices of the applied cuts at first,
+    sorted by their selection order. The discarded cuts indices are stored at the end of the array
+    in random order.
+    */
+SCIP_EXPORT
+SCIP_RETCODE SCIPgetCutsSelectionOrder(
+   SCIP*                 scip                /**< scip data structure */
    );
 
 #ifdef __cplusplus

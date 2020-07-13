@@ -41,12 +41,33 @@
 #include "scip/struct_event.h"
 #include "scip/struct_sepastore.h"
 #include "scip/misc.h"
-
-
-
+#include "scip/struct_scip.h"  /** TODO - avrech */
 /*
  * dynamic memory arrays
  */
+
+/** TODO - avrech not verified start */
+/** resizes cuts and score arrays to be able to store at least num entries */
+static
+SCIP_RETCODE sepastoreFreeRecentlyAppliedCutsNames(
+   SCIP_SEPASTORE*       sepastore           /**< separation storage */
+   )
+{
+   assert(sepastore != NULL);
+   if( sepastore->recentlyappliedcutsnames != NULL )
+   {
+      assert(sepastore->nrecentlyappliedcutsnames > 0);
+      for( i = 0; i < sepastore->nrecentlyappliedcutsnames; ++i)
+      {
+         BMSfreeMemoryArrayNull(&sepastore->recentlyappliedcutsnames[i]);
+      }
+      sepastore->nrecentlyappliedcutsnames = 0;
+
+   }
+   BMSfreeMemoryArrayNull(&sepastore->recentlyappliedcutsnames);
+   return SCIP_OKAY;
+}
+/* TODO - avrech not verified end */
 
 /** resizes cuts and score arrays to be able to store at least num entries */
 static
@@ -92,7 +113,8 @@ SCIP_RETCODE SCIPsepastoreCreate(
    (*sepastore)->ncutsapplied = 0;
    (*sepastore)->initiallp = FALSE;
    (*sepastore)->forcecuts = FALSE;
-
+   (*sepastore)->appliedcutsnames = NULL;  /** TODO - avrech not verified */
+   (*sepastore)->nappliedcutsnames = 0;  /** TODO - avrech not verified */
    SCIP_CALL( SCIPrandomCreate(&(*sepastore)->randnumgen, blkmem, (unsigned int)SCIPsetInitializeRandomSeed(set, 0x5EED)) );
 
    return SCIP_OKAY;
@@ -110,6 +132,8 @@ SCIP_RETCODE SCIPsepastoreFree(
 
    SCIPrandomFree(&(*sepastore)->randnumgen, blkmem);
    BMSfreeMemoryArrayNull(&(*sepastore)->cuts);
+   sepastoreFreeRecentlyAppliedCutsNames(*sepastore);  /* TODO - avrech not verified */
+
    BMSfreeMemory(sepastore);
 
    return SCIP_OKAY;
@@ -918,6 +942,7 @@ SCIP_RETCODE SCIPsepastoreApplyCuts(
       goodmaxparall = MAX(0.5, 1.0 - set->sepa_minortho);
    }
 
+   /* TODO - avrech not verified. reset stats before calling selection algorithm start */
    /* call cut selection algorithm */
    SCIP_CALL( SCIPselectCuts(set->scip, sepastore->cuts, sepastore->randnumgen, 0.9, 0.0, goodmaxparall, maxparall,
          set->sepa_dircutoffdistfac, set->sepa_efficacyfac, set->sepa_objparalfac, set->sepa_intsupportfac,
@@ -1120,4 +1145,44 @@ int SCIPsepastoreGetNCutsApplied(
    assert(sepastore != NULL);
 
    return sepastore->ncutsapplied;
+}
+
+/** TODO avrech - verification */
+/** resort all cuts in the separation storage, and set the proper nforcedcuts counter,
+    such that all the forcedcuts will move to the cuts array beginning,
+    and nforcedcuts will be equal to the number of cuts in forcedcuts.
+    this method should be applied after all separators finished adding cuts.
+    after applying this function,
+    the previous sorting of forced cuts in sepastore will not be valid any more.
+    in order to make sure that only those forced cuts will be selected,
+    one needs to reset separating/maxcuts or separating/maxcutsroot to nforcedcuts
+    */
+SCIP_RETCODE SCIPforceCuts(
+   SCIP*                 scip,               /**< scip data structure */
+   int*                  forcedcuts,         /**< indices of cuts in the separation storage to be forced */
+   int                   nforcedcuts         /**< number of forced cuts in forcedcuts */
+   )
+{
+   int i;
+   SCIP_ROW* cut1, cut2;
+   assert(scip->sepastore != NULL);
+   assert(forcedcuts != NULL);
+   assert(nforcedcuts <= scip->sepastore->ncuts);
+
+   /* iterate over all forcedcuts indices, and move them to the cuts array beginning */
+   for(i = 0; i < nforcedcuts; ++i)
+   {
+      /* get the next forced cut and its swapping pair */
+//      cut1 = scip->sepastore->cuts[forcedcuts[i]];
+//      cut2 = scip->sepastore->cuts[i];
+//      /* swap cut1 and cut2 position */
+//      scip->sepastore->cuts[i] = cut1;
+//      scip->sepastore->cuts[forcedcuts[i]] = cut2;
+      SCIPswapPointers((void**) & scip->sepastore->cuts[forcedcuts[i]], (void**) & scip->sepastore->cuts[i]);
+   }
+
+   /* reset nforcedcuts */
+   scip->sepastore->nforcedcuts = nforcedcuts;
+   assert(scip->sepastore->nforcedcuts <= scip->sepastore->ncuts);
+   return SCIP_OKAY;
 }

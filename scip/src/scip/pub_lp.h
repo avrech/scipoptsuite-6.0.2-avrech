@@ -475,6 +475,30 @@ void SCIProwChgRank(
    int                   rank                /**< new value for rank */
    );
 
+/** TODO avrech - verification */
+/** public API function for SCIProwGetObjParallelism */
+SCIP_EXPORT
+SCIP_Real SCIProwGetObjParal(
+   SCIP*                 scip,               /**< SCIP data structure */
+   SCIP_ROW*             row                 /**< LP row */
+   );
+
+/** TODO avrech - verification */
+/** returns the number of integral columns in row*/
+SCIP_EXPORT
+int SCIProwGetNIntCols(
+   SCIP*                 scip,               /**< SCIP data structure */
+   SCIP_ROW*             row                 /**< LP row */
+   );
+
+/** TODO avrech - verification */
+/** returns row's cutoff distance in the direction of the given primal solution */
+SCIP_EXPORT
+SCIP_Real SCIProwGetDirCutoffDistance(
+   SCIP*                 scip,               /**< SCIP data structure */
+   SCIP_ROW*             row                 /**< LP row */
+   );
+
 #ifdef NDEBUG
 
 /* In optimized mode, the function calls are overwritten by defines to reduce the number of function calls and

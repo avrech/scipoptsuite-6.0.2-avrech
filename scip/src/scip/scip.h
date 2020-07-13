@@ -158,5 +158,8 @@
 #include "scip/scip_validation.h"
 #include "scip/scip_var.h"
 
+/* include methods for ml-cutting-planes */
+/* TODO - avrech verification */
+#include "scip/sepastore.h"
 
 #endif

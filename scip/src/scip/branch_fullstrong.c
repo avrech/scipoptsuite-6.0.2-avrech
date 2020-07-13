@@ -343,7 +343,7 @@ SCIP_RETCODE SCIPselectVarStrongBranching(
          }
          else
          {
-            SCIP_CALL( SCIPgetVarStrongbranchFrac(scip, lpcands[c], INT_MAX,
+            SCIP_CALL( SCIPgetVarStrongbranchFrac(scip, lpcands[c], INT_MAX, FALSE,
                   skipdown[i] ? NULL : &down, skipup[i] ? NULL : &up, &downvalid, &upvalid, &downinf, &upinf,
                   &downconflict, &upconflict, &lperror) );
          }
