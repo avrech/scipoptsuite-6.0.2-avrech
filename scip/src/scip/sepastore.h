@@ -191,10 +191,9 @@ SCIP_RETCODE SCIPforceCuts(
 /** Returns array of cut names sorted by the selection order.
     */
 SCIP_EXPORT
-SCIP_RETCODE SCIPgetSelectedCutsNames(
+int SCIPgetSelectedCutsNames(
    SCIP*                 scip,               /**< scip data structure */
-   char**                cutnames,           /**< pointer to return array */
-   int*                  ncutnames           /**< pointer to return the number of elements in array */
+   char***               cutnames            /**< pointer to return array */
    );
 
 #ifdef __cplusplus

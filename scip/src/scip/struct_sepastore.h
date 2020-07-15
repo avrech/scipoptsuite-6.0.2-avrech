@@ -48,9 +48,9 @@ struct SCIP_SepaStore
    int                   ncutsapplied;         /**< total number of cuts applied to the LPs */
    SCIP_Bool             initiallp;            /**< is the separation storage currently being filled with the initial LP rows? */
    SCIP_Bool             forcecuts;            /**< should the cuts be used despite the number of cuts parameter limit? */
-   char**                selectedcutsnames;    /**< TODO - avrech - not verified. store the recently applied cuts names */
-   int                   nselectedcutsnames;   /**< TODO - avrech - not verified. length of selectedcutsnames */
-   int                   selectedcutsnamesmem; /**< TODO - avrech - not verified. allocated names array size */
+   char**                selectedcutsnames;    /**< TODO - avrech - verified. store the recently applied cuts names */
+   int                   nselectedcuts;        /**< TODO - avrech - verified. length of selectedcutsnames */
+   int                   selectedcutsnamesmem; /**< TODO - avrech - verified. allocated names array size */
 };
 
 #ifdef __cplusplus

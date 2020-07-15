@@ -264,8 +264,6 @@ struct SCIP_Stat
    SCIP_Bool             performpresol;      /**< indicates whether presolving is enabled */
    SCIP_Bool             branchedunbdvar;    /**< indicates whether branching on an unbounded variable has been performed */
    SCIP_Bool             disableenforelaxmsg;/**< was disable enforelax message printed? */
-//   char**                appliedcutsnames;   /**< TODO - avrech - not verified, pointer to array of the recently applied cuts names */
-//   int                   nappliedcutsnames   /**< TODO - avrech - not verified, number of allocated cut names */
 };
 
 #ifdef __cplusplus
