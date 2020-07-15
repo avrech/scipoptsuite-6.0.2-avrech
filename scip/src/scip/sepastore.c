@@ -23,6 +23,7 @@
 /*---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8----+----9----+----0----+----1----+----2*/
 
 #include <assert.h>
+#include <string.h>  // TODO - avrech
 
 #include "scip/def.h"
 #include "scip/set.h"
@@ -47,26 +48,63 @@
  */
 
 /** TODO - avrech not verified start */
-/** resizes cuts and score arrays to be able to store at least num entries */
+/** frees the selectedcutsnames array and the char arrays stored in it */
 static
-SCIP_RETCODE sepastoreFreeRecentlyAppliedCutsNames(
+SCIP_RETCODE sepastoreFreeSelectedCutsNames(
    SCIP_SEPASTORE*       sepastore           /**< separation storage */
    )
 {
    assert(sepastore != NULL);
-   if( sepastore->recentlyappliedcutsnames != NULL )
+   if( sepastore->selectedcutsnames != NULL )
    {
-      assert(sepastore->nrecentlyappliedcutsnames > 0);
-      for( i = 0; i < sepastore->nrecentlyappliedcutsnames; ++i)
+      assert(sepastore->selectedcutsnamesmem > 0);
+      for( i = 0; i < sepastore->selectedcutsnamesmem; ++i)
       {
-         BMSfreeMemoryArrayNull(&sepastore->recentlyappliedcutsnames[i]);
+         BMSfreeMemoryArrayNull(&sepastore->selectedcutsnames[i]);
       }
-      sepastore->nrecentlyappliedcutsnames = 0;
+      sepastore->selectedcutsnamesmem = 0;
 
    }
-   BMSfreeMemoryArrayNull(&sepastore->recentlyappliedcutsnames);
+   BMSfreeMemoryArrayNull(&sepastore->selectedcutsnames);
    return SCIP_OKAY;
 }
+
+/** ensures selectedcutsnames array size is at least ncuts.
+    if the allocated memory is not enough, frees the existing memory,
+    and allocates new array of the required size. */
+static
+SCIP_RETCODE sepastoreEnsureSelectedCutsNamesMem(
+   SCIP_SEPASTORE*       sepastore           /**< separation storage */
+   )
+{
+   int MAX_CUT_NAME_LENGTH = 10;
+   assert(sepastore != NULL);
+
+   // check if array is already allocated and if its size is enough
+   if (sepastore->selectedcutsnames != NULL && sepastore->selectedcutsnamesmem < sepastore->ncuts)
+   {
+      // free the allocated array, and re-allocate a new one of the required size.
+      sepastoreFreeselectedcutsnames(sepastore);
+   }
+
+   if(sepastore->selectedcutsnames == NULL )
+   {
+      assert(sepastore->selectedcutsnamesmem == 0);
+      // allocate array
+      SCIP_CALL( BMSallocMemoryArray(&sepastore->selectedcutsnames, sepastore->ncuts ) );
+      // allocate char arrays of size 10
+      for( i = 0; i < sepastore->nselectedcuts; ++i)
+      {
+         SCIP_CALL( BMSallocMemoryArray(&sepastore->selectedcutsnames[i], MAX_CUT_NAME_LENGTH) );
+      }
+      sepastore->selectedcutsnamesmem = sepastore->ncuts;
+   }
+
+   assert(sepastore->selectedcutsnamesmem >= sepastore->ncuts);
+
+   return SCIP_OKAY;
+}
+
 /* TODO - avrech not verified end */
 
 /** resizes cuts and score arrays to be able to store at least num entries */
@@ -113,8 +151,9 @@ SCIP_RETCODE SCIPsepastoreCreate(
    (*sepastore)->ncutsapplied = 0;
    (*sepastore)->initiallp = FALSE;
    (*sepastore)->forcecuts = FALSE;
-   (*sepastore)->appliedcutsnames = NULL;  /** TODO - avrech not verified */
-   (*sepastore)->nappliedcutsnames = 0;  /** TODO - avrech not verified */
+   (*sepastore)->selectedcutsnames = NULL;  /** TODO - avrech not verified */
+   (*sepastore)->nselectedcuts = -1;  /** TODO - avrech not verified */
+   (*sepastore)->selectedcutsnamesmem = 0;  /** TODO - avrech not verified */
    SCIP_CALL( SCIPrandomCreate(&(*sepastore)->randnumgen, blkmem, (unsigned int)SCIPsetInitializeRandomSeed(set, 0x5EED)) );
 
    return SCIP_OKAY;
@@ -132,7 +171,7 @@ SCIP_RETCODE SCIPsepastoreFree(
 
    SCIPrandomFree(&(*sepastore)->randnumgen, blkmem);
    BMSfreeMemoryArrayNull(&(*sepastore)->cuts);
-   sepastoreFreeRecentlyAppliedCutsNames(*sepastore);  /* TODO - avrech not verified */
+   sepastoreFreeSelectedCutsNames(*sepastore);  /* TODO - avrech not verified */
 
    BMSfreeMemory(sepastore);
 
@@ -942,11 +981,23 @@ SCIP_RETCODE SCIPsepastoreApplyCuts(
       goodmaxparall = MAX(0.5, 1.0 - set->sepa_minortho);
    }
 
-   /* TODO - avrech not verified. reset stats before calling selection algorithm start */
    /* call cut selection algorithm */
    SCIP_CALL( SCIPselectCuts(set->scip, sepastore->cuts, sepastore->randnumgen, 0.9, 0.0, goodmaxparall, maxparall,
          set->sepa_dircutoffdistfac, set->sepa_efficacyfac, set->sepa_objparalfac, set->sepa_intsupportfac,
          sepastore->ncuts, sepastore->nforcedcuts, maxsepacuts, &nselectedcuts) );
+
+   /* TODO - avrech not verified start
+             ensure sepastore->selectedcutsnames has enough space
+   */
+   sepastoreEnsureSelectedCutsNamesMem(sepastore);
+   /* SCIPselectCuts sorts the cuts array such that the selected cuts appear at the beginning in their
+      selection order. This assumption holds for at least the scip version 6.0.2 */
+   sepastore->nselectedcuts = nselectedcuts;
+   for( i=0; i < nselectedcuts; ++i)
+   {
+      strcpy(sepastore->selectedcutsnames[i], sepastore->cuts[i]->name);
+   }
+   /* TODO - avrech not verified end */
 
    /* apply all selected cuts */
    for( i = 0; i < nselectedcuts && !(*cutoff); i++ )
@@ -1147,7 +1198,7 @@ int SCIPsepastoreGetNCutsApplied(
    return sepastore->ncutsapplied;
 }
 
-/** TODO avrech - verification */
+/** TODO avrech - verified start */
 /** resort all cuts in the separation storage, and set the proper nforcedcuts counter,
     such that all the forcedcuts will move to the cuts array beginning,
     and nforcedcuts will be equal to the number of cuts in forcedcuts.
@@ -1186,3 +1237,20 @@ SCIP_RETCODE SCIPforceCuts(
    assert(scip->sepastore->nforcedcuts <= scip->sepastore->ncuts);
    return SCIP_OKAY;
 }
+
+/** Returns array of cut names sorted by the selection order.
+    */
+SCIP_RETCODE SCIPgetSelectedCutsNames(
+   SCIP*                 scip,               /**< scip data structure */
+   char**                cutnames,           /**< pointer to return array */
+   int*                  ncutnames           /**< pointer to return the number of elements in array */
+   )
+{
+   assert(scip->sepastore->selectedcutsnames != NULL);
+   assert(scip->sepastore->nselectedcuts >= 0);
+   *cutnames = scip->sepastore->selectedcutsnames;
+   *ncutnames = scip->sepastore->nselectedcuts;
+   return SCIP_OKAY;
+}
+
+/** TODO avrech - verified end */

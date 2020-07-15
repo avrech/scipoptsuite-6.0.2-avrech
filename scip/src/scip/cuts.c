@@ -2499,10 +2499,6 @@ SCIP_RETCODE SCIPselectCuts(
    SCIP_Real efficacyfac;
    SCIP_SOL* sol;
    assert( nselectedcuts != NULL );
-   /* TODO - avrech: tracking selection order:
-             before starting cut selection, free the previous round stat->appliedcutsnames,
-             and allocate a new array of the required size.
-   */
 
    /* if all cuts are forced cuts, no selection is required */
    if( nforcedcuts >= MIN(ncuts, maxselectedcuts) )

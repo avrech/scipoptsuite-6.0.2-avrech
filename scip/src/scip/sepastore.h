@@ -188,13 +188,13 @@ SCIP_RETCODE SCIPforceCuts(
    );
 
 /** TODO avrech - verification */
-/** Returns array with the indices of the applied cuts at first,
-    sorted by their selection order. The discarded cuts indices are stored at the end of the array
-    in random order.
+/** Returns array of cut names sorted by the selection order.
     */
 SCIP_EXPORT
-SCIP_RETCODE SCIPgetCutsSelectionOrder(
-   SCIP*                 scip                /**< scip data structure */
+SCIP_RETCODE SCIPgetSelectedCutsNames(
+   SCIP*                 scip,               /**< scip data structure */
+   char**                cutnames,           /**< pointer to return array */
+   int*                  ncutnames           /**< pointer to return the number of elements in array */
    );
 
 #ifdef __cplusplus

@@ -38,18 +38,19 @@ extern "C" {
 /** storage for separated cuts */
 struct SCIP_SepaStore
 {
-   SCIP_ROW**            cuts;                       /**< array with separated cuts sorted by score */
-   SCIP_RANDNUMGEN*      randnumgen;                 /**< random number generator used for tie breaking */
-   int                   cutssize;                   /**< size of cuts and score arrays */
-   int                   ncuts;                      /**< number of separated cuts (max. is set->sepa_maxcuts) */
-   int                   nforcedcuts;                /**< number of forced separated cuts (first positions in cuts array) */
-   int                   ncutsfound;                 /**< total number of cuts found so far */
-   int                   ncutsfoundround;            /**< number of cuts found so far in this separation round */
-   int                   ncutsapplied;               /**< total number of cuts applied to the LPs */
-   SCIP_Bool             initiallp;                  /**< is the separation storage currently being filled with the initial LP rows? */
-   SCIP_Bool             forcecuts;                  /**< should the cuts be used despite the number of cuts parameter limit? */
-   char**                recentlyappliedcutsnames;   /**< TODO - avrech - not verified. store the recently applied cuts names */
-   int                   nrecentlyappliedcutsnames;  /**< TODO - avrech - not verified. length of appliedcutsnames */
+   SCIP_ROW**            cuts;                 /**< array with separated cuts sorted by score */
+   SCIP_RANDNUMGEN*      randnumgen;           /**< random number generator used for tie breaking */
+   int                   cutssize;             /**< size of cuts and score arrays */
+   int                   ncuts;                /**< number of separated cuts (max. is set->sepa_maxcuts) */
+   int                   nforcedcuts;          /**< number of forced separated cuts (first positions in cuts array) */
+   int                   ncutsfound;           /**< total number of cuts found so far */
+   int                   ncutsfoundround;      /**< number of cuts found so far in this separation round */
+   int                   ncutsapplied;         /**< total number of cuts applied to the LPs */
+   SCIP_Bool             initiallp;            /**< is the separation storage currently being filled with the initial LP rows? */
+   SCIP_Bool             forcecuts;            /**< should the cuts be used despite the number of cuts parameter limit? */
+   char**                selectedcutsnames;    /**< TODO - avrech - not verified. store the recently applied cuts names */
+   int                   nselectedcutsnames;   /**< TODO - avrech - not verified. length of selectedcutsnames */
+   int                   selectedcutsnamesmem; /**< TODO - avrech - not verified. allocated names array size */
 };
 
 #ifdef __cplusplus
