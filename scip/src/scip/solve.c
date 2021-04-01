@@ -23,7 +23,7 @@
 
 /*---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8----+----9----+----0----+----1----+----2*/
 #include <assert.h>
-
+#include <string.h>  /* todo - avrech - for comparing and finding ml separator names */
 #include "lpi/lpi.h"
 #include "scip/branch.h"
 #include "scip/clock.h"
@@ -2305,7 +2305,8 @@ SCIP_RETCODE priceAndCutLoop(
    int stallnfracs;
    int actdepth;
    int npricedcolvars;
-
+   int i;  /* todo - avrech */
+   SCIP_RESULT result;  /* todo - avrech - for calling ml separator sepaexeclp*/
    assert(set != NULL);
    assert(blkmem != NULL);
    assert(stat != NULL);
@@ -2639,6 +2640,58 @@ SCIP_RETCODE priceAndCutLoop(
          }
          else
          {
+            /* todo - avrech verification */
+            /* call ml-separator for enforcing ml cut selection
+             * list of supported separators: ml_cut_selection, ml_baseline
+             * The procedure was copied from separationRoundLP() at line 1597. based on lines 1647:1694
+             */
+            /* pass over all separators and call only ml_cut_selection and ml_baseline */
+            for( i = 0; i < set->nsepas && !(*cutoff) && !(*lperror) && !enoughcuts && lp->flushed && lp->solved
+                    && (SCIPlpGetSolstat(lp) == SCIP_LPSOLSTAT_OPTIMAL || SCIPlpGetSolstat(lp) == SCIP_LPSOLSTAT_UNBOUNDEDRAY);
+                 ++i )
+            {
+         #ifndef NDEBUG
+               size_t nusedbuffer = BMSgetNUsedBufferMemory(SCIPbuffer(set->scip));
+         #endif
+               if( strcmp(SCIPsepaGetName(set->sepas[i]), 'ml_cut_selection') && strcmp(SCIPsepaGetName(set->sepas[i]), 'ml_baseline'))
+                  continue;
+
+
+               SCIPsetDebugMsg(set, " -> executing separator <%s> with priority %d\n",
+                  SCIPsepaGetName(set->sepas[i]), SCIPsepaGetPriority(set->sepas[i]));
+               SCIP_CALL( SCIPsepaExecLP(set->sepas[i], set, stat, sepastore, actdepth, bounddist, allowlocal, delayedsepa, &result) );
+         #ifndef NDEBUG
+               if( BMSgetNUsedBufferMemory(SCIPbuffer(set->scip)) > nusedbuffer )
+               {
+                  SCIPerrorMessage("Buffer not completely freed after executing separator <%s>\n", SCIPsepaGetName(set->sepas[i]));
+                  SCIPABORT();
+               }
+         #endif
+               /* todo - avrech - commented out these lines because ml separators don't add/remove cuts, but only manipulate the sepastore cuts array */
+//               *cutoff = *cutoff || (result == SCIP_CUTOFF);
+//               consadded = consadded || (result == SCIP_CONSADDED);
+//               *enoughcuts = *enoughcuts || (SCIPsepastoreGetNCuts(sepastore) >= 2 * (SCIP_Longint)SCIPsetGetSepaMaxcuts(set, root)) || (result == SCIP_NEWROUND);
+//               *delayed = *delayed || (result == SCIP_DELAYED);
+//
+//               if( !(*cutoff) )
+//               {
+//                  /* make sure the LP is solved (after adding bound changes, LP has to be flushed and resolved) */
+//                  SCIP_CALL( separationRoundResolveLP(blkmem, set, messagehdlr, stat, eventqueue, eventfilter, prob, primal, tree, lp, lperror, mustsepa, mustprice) );
+//               }
+//               else
+//               {
+//                  SCIPsetDebugMsg(set, " -> separator <%s> detected cutoff\n", SCIPsepaGetName(set->sepas[i]));
+//               }
+//
+//               /* if we work off the delayed separators, we stop immediately if a cut was found */
+//               if( onlydelayed && (result == SCIP_CONSADDED || result == SCIP_REDUCEDDOM || result == SCIP_SEPARATED || result == SCIP_NEWROUND) )
+//               {
+//                  SCIPsetDebugMsg(set, " -> delayed separator <%s> found a cut\n", SCIPsepaGetName(set->sepas[i]));
+//                  *delayed = TRUE;
+//                  return SCIP_OKAY;
+//               }
+
+            }
             /* apply found cuts */
             SCIP_CALL( SCIPsepastoreApplyCuts(sepastore, blkmem, set, stat, transprob, origprob, tree, reopt, lp,
                   branchcand, eventqueue, eventfilter, cliquetable, root, SCIP_EFFICIACYCHOICE_LP, cutoff) );
