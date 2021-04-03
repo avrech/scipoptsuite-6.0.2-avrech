@@ -2650,23 +2650,26 @@ SCIP_RETCODE priceAndCutLoop(
                     && (SCIPlpGetSolstat(lp) == SCIP_LPSOLSTAT_OPTIMAL || SCIPlpGetSolstat(lp) == SCIP_LPSOLSTAT_UNBOUNDEDRAY);
                  ++i )
             {
-         #ifndef NDEBUG
-               size_t nusedbuffer = BMSgetNUsedBufferMemory(SCIPbuffer(set->scip));
-         #endif
-               if( strcmp(SCIPsepaGetName(set->sepas[i]), 'ml_cut_selection') && strcmp(SCIPsepaGetName(set->sepas[i]), 'ml_baseline'))
+//         #ifndef NDEBUG
+//               size_t nusedbuffer = BMSgetNUsedBufferMemory(SCIPbuffer(set->scip));
+//         #endif
+               if( strcmp(SCIPsepaGetName(set->sepas[i]), "ml_cut_selection") && strcmp(SCIPsepaGetName(set->sepas[i]), "ml_baseline"))
                   continue;
+               printf("calling %s for cut selection\n", SCIPsepaGetName(set->sepas[i]));
 
 
-               SCIPsetDebugMsg(set, " -> executing separator <%s> with priority %d\n",
-                  SCIPsepaGetName(set->sepas[i]), SCIPsepaGetPriority(set->sepas[i]));
+//               SCIPsetDebugMsg(set, " -> executing separator <%s> with priority %d\n",
+//                  SCIPsepaGetName(set->sepas[i]), SCIPsepaGetPriority(set->sepas[i]));
                SCIP_CALL( SCIPsepaExecLP(set->sepas[i], set, stat, sepastore, actdepth, bounddist, allowlocal, delayedsepa, &result) );
-         #ifndef NDEBUG
-               if( BMSgetNUsedBufferMemory(SCIPbuffer(set->scip)) > nusedbuffer )
-               {
-                  SCIPerrorMessage("Buffer not completely freed after executing separator <%s>\n", SCIPsepaGetName(set->sepas[i]));
-                  SCIPABORT();
-               }
-         #endif
+               assert(BMSgetNUsedBufferMemory(mem->buffer) == 0);
+               printf("finished cut selection\n");
+//         #ifndef NDEBUG
+//               if( BMSgetNUsedBufferMemory(SCIPbuffer(set->scip)) > nusedbuffer )
+//               {
+//                  SCIPerrorMessage("Buffer not completely freed after executing separator <%s>\n", SCIPsepaGetName(set->sepas[i]));
+//                  SCIPABORT();
+//               }
+//         #endif
                /* todo - avrech - commented out these lines because ml separators don't add/remove cuts, but only manipulate the sepastore cuts array */
 //               *cutoff = *cutoff || (result == SCIP_CUTOFF);
 //               consadded = consadded || (result == SCIP_CONSADDED);
