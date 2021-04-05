@@ -39,6 +39,7 @@
 #include "scip/type_reopt.h"
 #include "scip/type_sepastore.h"
 #include "scip/type_branch.h"
+#include "scip/struct_mem.h"  /** TODO - avrech */
 #include "scip/struct_scip.h"
 
 #ifdef __cplusplus
@@ -194,6 +195,17 @@ SCIP_EXPORT
 int SCIPgetSelectedCutsNames(
    SCIP*                 scip,               /**< scip data structure */
    char***               cutnames            /**< pointer to return array */
+   );
+
+/** TODO avrech - verification */
+/** Removes duplicated cuts from the separation storage.
+    This function is not needed for SCIP itself,
+    but it is useful for ml-cut-selection to avoid overriding names in dictionaries.
+    Returns the number of duplications.
+    */
+SCIP_EXPORT
+int SCIPsepastoreRemoveDupCuts(
+   SCIP*                 scip                /**< scip data structure */
    );
 
 #ifdef __cplusplus

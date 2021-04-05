@@ -1659,6 +1659,10 @@ SCIP_RETCODE separationRoundLP(
       if( onlydelayed && !SCIPsepaWasLPDelayed(set->sepas[i]) )
          continue;
 
+      /* todo - avrech - skip ml separators in separation round, and call them only right before cut selection */
+      if( !strncmp(SCIPsepaGetName(set->sepas[i]), "#ml", 3) )
+         continue;
+
       SCIPsetDebugMsg(set, " -> executing separator <%s> with priority %d\n",
          SCIPsepaGetName(set->sepas[i]), SCIPsepaGetPriority(set->sepas[i]));
       SCIP_CALL( SCIPsepaExecLP(set->sepas[i], set, stat, sepastore, actdepth, bounddist, allowlocal, onlydelayed, &result) );
@@ -1740,6 +1744,10 @@ SCIP_RETCODE separationRoundLP(
          continue;
 
       if( onlydelayed && !SCIPsepaWasLPDelayed(set->sepas[i]) )
+         continue;
+
+      /* todo - avrech - skip ml separators in separation round, and call them only right before cut selection */
+      if( !strncmp(SCIPsepaGetName(set->sepas[i]), "#ml", 3) )
          continue;
 
       SCIPsetDebugMsg(set, " -> executing separator <%s> with priority %d\n",
@@ -2653,16 +2661,18 @@ SCIP_RETCODE priceAndCutLoop(
 //         #ifndef NDEBUG
 //               size_t nusedbuffer = BMSgetNUsedBufferMemory(SCIPbuffer(set->scip));
 //         #endif
-               if( strcmp(SCIPsepaGetName(set->sepas[i]), "ml_cut_selection") && strcmp(SCIPsepaGetName(set->sepas[i]), "ml_baseline"))
+               /* call here only separator plugins whose name starts with "#ml".
+                those separators will be called only here and not inside separationRoundLP() */
+               if( strncmp(SCIPsepaGetName(set->sepas[i]), "#ml", 3))
                   continue;
-               printf("calling %s for cut selection\n", SCIPsepaGetName(set->sepas[i]));
+//               printf("calling %s for cut selection\n", SCIPsepaGetName(set->sepas[i]));
 
 
 //               SCIPsetDebugMsg(set, " -> executing separator <%s> with priority %d\n",
 //                  SCIPsepaGetName(set->sepas[i]), SCIPsepaGetPriority(set->sepas[i]));
                SCIP_CALL( SCIPsepaExecLP(set->sepas[i], set, stat, sepastore, actdepth, bounddist, allowlocal, delayedsepa, &result) );
                assert(BMSgetNUsedBufferMemory(mem->buffer) == 0);
-               printf("finished cut selection\n");
+
 //         #ifndef NDEBUG
 //               if( BMSgetNUsedBufferMemory(SCIPbuffer(set->scip)) > nusedbuffer )
 //               {

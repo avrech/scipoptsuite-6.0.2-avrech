@@ -43,6 +43,7 @@
 #include "scip/struct_event.h"
 #include "scip/struct_sepastore.h"
 #include "scip/misc.h"
+#include "scip/struct_mem.h"  /** TODO - avrech */
 #include "scip/struct_scip.h"  /** TODO - avrech */
 /*
  * dynamic memory arrays
@@ -1274,4 +1275,31 @@ int SCIPgetSelectedCutsNames(
    return scip->sepastore->nselectedcuts;
 }
 
+/** Removes duplicated cuts from the separation storage.
+    This function is not needed for SCIP itself,
+    but it is useful for ml-cut-selection to avoid overriding names in dictionaries.
+    Returns the number of duplications.
+    */
+int SCIPsepastoreRemoveDupCuts(
+   SCIP*                 scip                /**< scip data structure */
+   )
+{
+   int i;
+   int j;
+   int ncuts = scip->sepastore->ncuts;
+   int ndups = 0;
+   if (ncuts == 0)
+      return 0;
+   for(i = ncuts-1; i>0; --i){
+      for(j = i-1; j>=0; --j){
+         if(!strcmp(scip->sepastore->cuts[i]->name, scip->sepastore->cuts[j]->name)){
+            /* duplication detected. remove cut i. */
+            SCIP_CALL( sepastoreDelCut(scip->sepastore, scip->mem->probmem, scip->set, scip->eventqueue, scip->eventfilter, scip->lp, i) );
+            ++ndups;
+            break;
+         }
+      }
+   }
+   return ndups;
+}
 /** TODO avrech - verified end */
