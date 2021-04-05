@@ -86,7 +86,7 @@ SCIP_RETCODE sepastoreEnsureSelectedCutsNamesMem(
    int                   new_size                /**< minimal size required */
    )
 {
-   int MAX_CUT_NAME_LENGTH = 10;
+   int MAX_CUT_NAME_LENGTH = 30;   /** TODO - avrech - this assumption must be respected by plugins */
    int i;
    assert(sepastore != NULL);
    if(new_size == 0)
