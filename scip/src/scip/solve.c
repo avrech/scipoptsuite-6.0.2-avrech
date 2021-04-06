@@ -1660,7 +1660,7 @@ SCIP_RETCODE separationRoundLP(
          continue;
 
       /* todo - avrech - skip ml separators in separation round, and call them only right before cut selection */
-      if( !strncmp(SCIPsepaGetName(set->sepas[i]), "#ml", 3) )
+      if( !strncmp(SCIPsepaGetName(set->sepas[i]), "#CS", 3) )
          continue;
 
       SCIPsetDebugMsg(set, " -> executing separator <%s> with priority %d\n",
@@ -1747,7 +1747,7 @@ SCIP_RETCODE separationRoundLP(
          continue;
 
       /* todo - avrech - skip ml separators in separation round, and call them only right before cut selection */
-      if( !strncmp(SCIPsepaGetName(set->sepas[i]), "#ml", 3) )
+      if( !strncmp(SCIPsepaGetName(set->sepas[i]), "#CS", 3) )
          continue;
 
       SCIPsetDebugMsg(set, " -> executing separator <%s> with priority %d\n",
@@ -2649,7 +2649,7 @@ SCIP_RETCODE priceAndCutLoop(
          else
          {
             /* todo - avrech verification */
-            /* call ml-separator for enforcing ml cut selection
+            /* call cut selection separators for enforcing ml cut selection
              * list of supported separators: ml_cut_selection, ml_baseline
              * The procedure was copied from separationRoundLP() at line 1597. based on lines 1647:1694
              */
@@ -2658,56 +2658,39 @@ SCIP_RETCODE priceAndCutLoop(
                     && (SCIPlpGetSolstat(lp) == SCIP_LPSOLSTAT_OPTIMAL || SCIPlpGetSolstat(lp) == SCIP_LPSOLSTAT_UNBOUNDEDRAY);
                  ++i )
             {
-//         #ifndef NDEBUG
-//               size_t nusedbuffer = BMSgetNUsedBufferMemory(SCIPbuffer(set->scip));
-//         #endif
-               /* call here only separator plugins whose name starts with "#ml".
-                those separators will be called only here and not inside separationRoundLP() */
-               if( strncmp(SCIPsepaGetName(set->sepas[i]), "#ml", 3))
+               /* call here only separator plugins whose name starts with "#CS".
+                those separators will be called only here and not inside separationRoundLP()
+                ml separators enforce cut selection by setting sepastore->nforcedcuts and separating/maxncuts and separating/maxncutsroot to
+                the number of selected cuts.
+                These maxncuts params must be reset to high value to enable separators in the next round,
+                unless enoughcuts will be turned on and the separators won't be executed.
+                */
+               if( strncmp(SCIPsepaGetName(set->sepas[i]), "#CS", 3) || !strcmp(SCIPsepaGetName(set->sepas[i]), "#CS_reset"))
                   continue;
 //               printf("calling %s for cut selection\n", SCIPsepaGetName(set->sepas[i]));
-
-
-//               SCIPsetDebugMsg(set, " -> executing separator <%s> with priority %d\n",
-//                  SCIPsepaGetName(set->sepas[i]), SCIPsepaGetPriority(set->sepas[i]));
                SCIP_CALL( SCIPsepaExecLP(set->sepas[i], set, stat, sepastore, actdepth, bounddist, allowlocal, delayedsepa, &result) );
                assert(BMSgetNUsedBufferMemory(mem->buffer) == 0);
-
-//         #ifndef NDEBUG
-//               if( BMSgetNUsedBufferMemory(SCIPbuffer(set->scip)) > nusedbuffer )
-//               {
-//                  SCIPerrorMessage("Buffer not completely freed after executing separator <%s>\n", SCIPsepaGetName(set->sepas[i]));
-//                  SCIPABORT();
-//               }
-//         #endif
-               /* todo - avrech - commented out these lines because ml separators don't add/remove cuts, but only manipulate the sepastore cuts array */
-//               *cutoff = *cutoff || (result == SCIP_CUTOFF);
-//               consadded = consadded || (result == SCIP_CONSADDED);
-//               *enoughcuts = *enoughcuts || (SCIPsepastoreGetNCuts(sepastore) >= 2 * (SCIP_Longint)SCIPsetGetSepaMaxcuts(set, root)) || (result == SCIP_NEWROUND);
-//               *delayed = *delayed || (result == SCIP_DELAYED);
-//
-//               if( !(*cutoff) )
-//               {
-//                  /* make sure the LP is solved (after adding bound changes, LP has to be flushed and resolved) */
-//                  SCIP_CALL( separationRoundResolveLP(blkmem, set, messagehdlr, stat, eventqueue, eventfilter, prob, primal, tree, lp, lperror, mustsepa, mustprice) );
-//               }
-//               else
-//               {
-//                  SCIPsetDebugMsg(set, " -> separator <%s> detected cutoff\n", SCIPsepaGetName(set->sepas[i]));
-//               }
-//
-//               /* if we work off the delayed separators, we stop immediately if a cut was found */
-//               if( onlydelayed && (result == SCIP_CONSADDED || result == SCIP_REDUCEDDOM || result == SCIP_SEPARATED || result == SCIP_NEWROUND) )
-//               {
-//                  SCIPsetDebugMsg(set, " -> delayed separator <%s> found a cut\n", SCIPsepaGetName(set->sepas[i]));
-//                  *delayed = TRUE;
-//                  return SCIP_OKAY;
-//               }
-
             }
             /* apply found cuts */
             SCIP_CALL( SCIPsepastoreApplyCuts(sepastore, blkmem, set, stat, transprob, origprob, tree, reopt, lp,
                   branchcand, eventqueue, eventfilter, cliquetable, root, SCIP_EFFICIACYCHOICE_LP, cutoff) );
+
+            /* todo - avrech verification */
+            /* reset maxncuts and maxncutsroot if cut selection separators changed this.
+             * this is done outside SCIP in special python separator for easier control.
+             */
+            /* pass over all separators and call only ml_cut_selection and ml_baseline */
+            for( i = 0; i < set->nsepas; ++i )
+            {
+               if( strcmp(SCIPsepaGetName(set->sepas[i]), "#CS_reset"))
+                  continue;
+//               printf("calling %s for cut selection\n", SCIPsepaGetName(set->sepas[i]));
+               SCIP_CALL( SCIPsepaExecLP(set->sepas[i], set, stat, sepastore, actdepth, bounddist, allowlocal, delayedsepa, &result) );
+               assert(BMSgetNUsedBufferMemory(mem->buffer) == 0);
+               /* reset is done. we can break and move on */
+               break;
+            }
+
 
             if( !(*cutoff) )
             {
