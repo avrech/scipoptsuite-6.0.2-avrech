@@ -2653,8 +2653,9 @@ SCIP_RETCODE priceAndCutLoop(
              * list of supported separators: ml_cut_selection, ml_baseline
              * The procedure was copied from separationRoundLP() at line 1597. based on lines 1647:1694
              */
-            /* pass over all separators and call only ml_cut_selection and ml_baseline */
-            for( i = 0; i < set->nsepas && !(*cutoff) && !(*lperror) && !enoughcuts && lp->flushed && lp->solved
+            /* pass over all separators and call only ml_cut_selection and ml_baseline,
+               removed `&& !enoughcuts` from condition, to call the ml cut selection even if there are enough cuts */
+            for( i = 0; i < set->nsepas && !(*cutoff) && !(*lperror) && lp->flushed && lp->solved
                     && (SCIPlpGetSolstat(lp) == SCIP_LPSOLSTAT_OPTIMAL || SCIPlpGetSolstat(lp) == SCIP_LPSOLSTAT_UNBOUNDEDRAY);
                  ++i )
             {
