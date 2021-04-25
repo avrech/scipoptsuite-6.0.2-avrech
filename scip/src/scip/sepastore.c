@@ -1302,4 +1302,39 @@ int SCIPsepastoreRemoveDupCuts(
    }
    return ndups;
 }
+
+SCIP_RETCODE SCIPsepastoreDelCut(
+   SCIP*                 scip,               /**< scip data structure */
+   int                   i
+   )
+{
+   SCIP_CALL( sepastoreDelCut(scip->sepastore, scip->mem->probmem, scip->set, scip->eventqueue, scip->eventfilter, scip->lp, i) );
+   return SCIP_OKAY;
+}
+
+/** Removes cuts from the separation storage whose rhs is +-infinity
+    This function is not needed for SCIP itself,
+    but it is useful for ml-cut-selection
+    */
+int SCIPsepastoreRemoveInfiniteRhsCuts(
+   SCIP*                 scip                /**< scip data structure */
+   )
+{
+   int i;
+   int ncuts = scip->sepastore->ncuts;
+   int nremoved;
+   SCIP_Real rhs;
+   if (ncuts == 0)
+      return 0;
+   for(i = ncuts-1; i>=0; --i){
+      if( SCIPsetIsInfinity(scip->set, REALABS(SCIProwGetRhs(scip->sepastore->cuts[i])))){
+         /* remove cut i */
+         SCIP_CALL( sepastoreDelCut(scip->sepastore, scip->mem->probmem, scip->set, scip->eventqueue, scip->eventfilter, scip->lp, i) );
+         ++nremoved;
+         break;
+      }
+   }
+   return nremoved;
+}
+
 /** TODO avrech - verified end */

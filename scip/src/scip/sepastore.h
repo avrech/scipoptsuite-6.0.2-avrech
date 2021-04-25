@@ -208,6 +208,23 @@ int SCIPsepastoreRemoveDupCuts(
    SCIP*                 scip                /**< scip data structure */
    );
 
+/** TODO avrech - verification */
+/** Removes the i'th cut from the separation storage
+    */
+SCIP_EXPORT
+SCIP_RETCODE SCIPsepastoreDelCut(
+   SCIP*                 scip,               /**< scip data structure */
+   int                   i
+   );
+
+/** TODO avrech - verification */
+/** Removes all cuts in sepastore whose rhs is +- infinity
+    */
+SCIP_EXPORT
+int SCIPsepastoreRemoveInfiniteRhsCuts(
+   SCIP*                 scip                /**< scip data structure */
+   );
+
 #ifdef __cplusplus
 }
 #endif
