@@ -1,6 +1,16 @@
 # Important Notes
 This scipoptsuite version implements the backend for my other project at
-`https://github.com/avrech/learning2cut.git`.
+`https://github.com/avrech/learning2cut.git`.  
+
+## Installation
+- add `export SCIPOPTDIR=/path/to/installation/dir` to your `.bashrc`  
+- go to `scipoptsuite-6.0.2-avrech` and run the following commands in the terminal
+> $ cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$SCIPOPTDIR  
+> $ cmake --build build  
+> $ cd build  
+> $ make install  
+
+## Added Functionality 
 The following files in `scip/src/scip/` were modified to enable cut selection control 
 via PySCIPOpt:
 - scip.h, pub_lp.h, struct_sepastore.h, sepastore.h 
@@ -11,6 +21,8 @@ The following functionality was added:
 - force selecting a specified group of cuts  
 - reset `maxcuts` and `maxcutsroot` at the beginning of each separation round, to avoid undesired `enoughcuts` case. 
 
+In order to use this functionality, please clone PySCIPOpt from `https://github.com/ds4dm/PySCIPOpt.git` and 
+install the `ml-cutting-planes` branch inside your virtualenv.
 
 ```
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
