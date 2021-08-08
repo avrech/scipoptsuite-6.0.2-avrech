@@ -1,3 +1,17 @@
+# Important Notes
+This scipoptsuite version implements the backend for my other project at
+`https://github.com/avrech/learning2cut.git`.
+The following files in `scip/src/scip/` were modified to enable cut selection control 
+via PySCIPOpt:
+- scip.h, pub_lp.h, struct_sepastore.h, sepastore.h 
+- solve.c, sepastore.c, lp.c  
+
+The following functionality was added:  
+- get the recently selected cut names
+- force selecting a specified group of cuts  
+- reset `maxcuts` and `maxcutsroot` at the beginning of each separation round, to avoid undesired `enoughcuts` case. 
+
+
 ```
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 *                                                                           *

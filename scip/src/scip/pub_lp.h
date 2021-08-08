@@ -475,7 +475,7 @@ void SCIProwChgRank(
    int                   rank                /**< new value for rank */
    );
 
-/** TODO avrech - verification */
+/** avrech - verified */
 /** public API function for SCIProwGetObjParallelism */
 SCIP_EXPORT
 SCIP_Real SCIProwGetObjParal(
@@ -483,7 +483,7 @@ SCIP_Real SCIProwGetObjParal(
    SCIP_ROW*             row                 /**< LP row */
    );
 
-/** TODO avrech - verification */
+/** avrech - verified */
 /** returns the number of integral columns in row*/
 SCIP_EXPORT
 int SCIProwGetNIntCols(
@@ -491,7 +491,7 @@ int SCIProwGetNIntCols(
    SCIP_ROW*             row                 /**< LP row */
    );
 
-/** TODO avrech - verification */
+/** avrech - verified */
 /** returns row's cutoff distance in the direction of the given primal solution */
 SCIP_EXPORT
 SCIP_Real SCIProwGetDirCutoffDistance(

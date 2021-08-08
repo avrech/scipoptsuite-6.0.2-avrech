@@ -46,11 +46,11 @@
 #include "scip/pub_var.h"
 #include "scip/set.h"
 #include "scip/sol.h"
-#include "scip/scip_sol.h" /** TODO avrech verification */
+#include "scip/scip_sol.h" /** avrech verified */
 #include "scip/solve.h"
 #include "scip/stat.h"
 #include "scip/struct_event.h"
-#include "scip/struct_scip.h" /** TODO avrech verification */
+#include "scip/struct_scip.h" /** avrech verified */
 #include "scip/struct_lp.h"
 #include "scip/struct_prob.h"
 #include "scip/struct_set.h"
@@ -18327,7 +18327,7 @@ SCIP_RETCODE SCIPlpComputeRelIntPoint(
    return SCIP_OKAY;
 }
 
-/** TODO avrech - verification */
+/** avrech verified */
 /** public API functin for SCIProwGetLPSolCutoffDistance */
 SCIP_Real SCIProwGetDirCutoffDistance(
    SCIP*                 scip,               /**< SCIP data structure */
@@ -18346,7 +18346,7 @@ SCIP_Real SCIProwGetDirCutoffDistance(
     }
 }
 
-/** TODO avrech - verification */
+/** avrech verified */
 /** public API function for SCIProwGetObjParallelism */
 SCIP_Real SCIProwGetObjParal(
    SCIP*                 scip,               /**< SCIP data structure */
@@ -18356,7 +18356,7 @@ SCIP_Real SCIProwGetObjParal(
    return SCIProwGetObjParallelism(row, scip->set, scip->lp);
 }
 
-/** TODO avrech - verification */
+/** avrech verified */
 /** public API function for SCIProwGetNumIntCols */
 int SCIProwGetNIntCols(
    SCIP*                 scip,               /**< SCIP data structure */

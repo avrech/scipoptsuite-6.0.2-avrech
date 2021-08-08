@@ -23,7 +23,7 @@
 
 /*---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8----+----9----+----0----+----1----+----2*/
 #include <assert.h>
-#include <string.h>  /* todo - avrech - for comparing and finding ml separator names */
+#include <string.h>  /* avrech - done */
 #include "lpi/lpi.h"
 #include "scip/branch.h"
 #include "scip/clock.h"
@@ -1659,7 +1659,7 @@ SCIP_RETCODE separationRoundLP(
       if( onlydelayed && !SCIPsepaWasLPDelayed(set->sepas[i]) )
          continue;
 
-      /* todo - avrech - skip ml separators in separation round, and call them only right before cut selection */
+      /* avrech - skip ml separators in separation round, and call them only right before cut selection */
       if( !strncmp(SCIPsepaGetName(set->sepas[i]), "#CS", 3) )
          continue;
 
@@ -1746,7 +1746,7 @@ SCIP_RETCODE separationRoundLP(
       if( onlydelayed && !SCIPsepaWasLPDelayed(set->sepas[i]) )
          continue;
 
-      /* todo - avrech - skip ml separators in separation round, and call them only right before cut selection */
+      /* avrech - skip ml separators in separation round, and call them only right before cut selection */
       if( !strncmp(SCIPsepaGetName(set->sepas[i]), "#CS", 3) )
          continue;
 
@@ -2313,8 +2313,8 @@ SCIP_RETCODE priceAndCutLoop(
    int stallnfracs;
    int actdepth;
    int npricedcolvars;
-   int i;  /* todo - avrech */
-   SCIP_RESULT result;  /* todo - avrech - for calling ml separator sepaexeclp*/
+   int i;  /* avrech - done */
+   SCIP_RESULT result;  /* avrech - for calling ml separator sepaexeclp - done */
    assert(set != NULL);
    assert(blkmem != NULL);
    assert(stat != NULL);
@@ -2648,7 +2648,7 @@ SCIP_RETCODE priceAndCutLoop(
          }
          else
          {
-            /* todo - avrech verification */
+            /* avrech - verified */
             /* call cut selection separators for enforcing ml cut selection
              * list of supported separators: ml_cut_selection, ml_baseline
              * The procedure was copied from separationRoundLP() at line 1597. based on lines 1647:1694
@@ -2676,7 +2676,7 @@ SCIP_RETCODE priceAndCutLoop(
             SCIP_CALL( SCIPsepastoreApplyCuts(sepastore, blkmem, set, stat, transprob, origprob, tree, reopt, lp,
                   branchcand, eventqueue, eventfilter, cliquetable, root, SCIP_EFFICIACYCHOICE_LP, cutoff) );
 
-            /* todo - avrech verification */
+            /* avrech - verified */
             /* reset maxncuts and maxncutsroot if cut selection separators changed this.
              * this is done outside SCIP in special python separator for easier control.
              */

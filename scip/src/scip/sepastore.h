@@ -39,7 +39,7 @@
 #include "scip/type_reopt.h"
 #include "scip/type_sepastore.h"
 #include "scip/type_branch.h"
-#include "scip/struct_mem.h"  /** TODO - avrech */
+#include "scip/struct_mem.h"  /** avrech - done */
 #include "scip/struct_scip.h"
 
 #ifdef __cplusplus
@@ -171,7 +171,7 @@ int SCIPsepastoreGetNCutsApplied(
    SCIP_SEPASTORE*       sepastore           /**< separation storage */
    );
 
-/** TODO avrech - verification */
+/** avrech - verified */
 /** resort all cuts in the separation storage, and set the proper nforcedcuts counter,
     such that all the forcedcuts will move to the cuts array beginning,
     and nforcedcuts will be equal to the number of cuts in forcedcuts.
@@ -188,7 +188,7 @@ SCIP_RETCODE SCIPforceCuts(
    int                   nforcedcuts         /**< number of forced cuts in forcedcuts */
    );
 
-/** TODO avrech - verification */
+/** avrech - verified */
 /** Returns array of cut names sorted by the selection order.
     */
 SCIP_EXPORT
@@ -197,7 +197,7 @@ int SCIPgetSelectedCutsNames(
    char***               cutnames            /**< pointer to return array */
    );
 
-/** TODO avrech - verification */
+/** avrech - verified */
 /** Removes duplicated cuts from the separation storage.
     This function is not needed for SCIP itself,
     but it is useful for ml-cut-selection to avoid overriding names in dictionaries.
@@ -208,7 +208,7 @@ int SCIPsepastoreRemoveDupCuts(
    SCIP*                 scip                /**< scip data structure */
    );
 
-/** TODO avrech - verification */
+/** avrech - verified */
 /** Removes the i'th cut from the separation storage
     */
 SCIP_EXPORT
@@ -217,7 +217,7 @@ SCIP_RETCODE SCIPsepastoreDelCut(
    int                   i
    );
 
-/** TODO avrech - verification */
+/** avrech - verified */
 /** Removes all cuts in sepastore whose rhs is +- infinity
     */
 SCIP_EXPORT
